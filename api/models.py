@@ -89,3 +89,12 @@ class Examination(models.Model):
 
     def __str__(self):
         return self.design_title
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTicketById(request, ticket_id):
+    try:
+        ticket = Ticket.objects.get(id=ticket_id) 
+        serializer = TicketSerializer(ticket)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Ticket.DoesNotExist:
+        return Response({'error': 'Ticket not found.'}, status=status.HTTP_404_NOT_FOUND)

@@ -1,3 +1,6 @@
+
+# imports
+
 import os
 import io
 import zipfile
@@ -25,6 +28,9 @@ from rest_framework import generics
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from django.db.models import Q
+
+
+
 
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -56,6 +62,8 @@ def testEndPoint(request):
         data = f'Congratulations, your API just responded to POST request with text: {text}.'
         return Response({'response': data}, status=status.HTTP_200_OK)
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+#users Endpoints
 
 class UserPagination(PageNumberPagination):
     page_size = 9  
@@ -98,6 +106,20 @@ def updateUserView(request, user_id):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def deleteUser(request, user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        if request.user != user and not request.user.is_superuser:
+            return Response({'error': 'You do not have permission to delete this user.'}, status=status.HTTP_403_FORBIDDEN)
+
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    except User.DoesNotExist:
+        return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def userDetailView(request, user_id):
@@ -124,7 +146,9 @@ def userDetailView(request, user_id):
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-# Bug Pagination Class
+# Bug Endpoints
+
+
 class BugPagination(PageNumberPagination):
     page_size = 10  
     page_size_query_param = 'page_size'
@@ -173,6 +197,18 @@ def allBugsView(request):
     serializer = BugSerializer(paginated_bugs, many=True)
     return paginator.get_paginated_response(serializer.data)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getBugById(request, bug_id):
+    try:
+        bug = Bug.objects.get(id=bug_id)  
+        serializer = BugSerializer(bug)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Bug.DoesNotExist:
+        return Response({'error': 'Bug not found.'}, status=status.HTTP_404_NOT_FOUND)    
+
+# log Endpoints
+
 class LogPagination(PageNumberPagination):
     page_size = 10  
     page_size_query_param = 'page_size'
@@ -207,6 +243,19 @@ def allLogsView(request):
     serializer = LogSerializer(paginated_logs, many=True)
     return paginator.get_paginated_response(serializer.data)
 
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getLogById(request, log_id):
+    try:
+        log = Log.objects.get(id=log_id) 
+        serializer = LogSerializer(log)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Log.DoesNotExist:
+        return Response({'error': 'Log not found.'}, status=status.HTTP_404_NOT_FOUND)    
+
+#Version Endpoints    
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def uploadVersion(request):
@@ -225,19 +274,21 @@ def getLatestVersion(request):
     except AppVersion.DoesNotExist:
         return Response({'error': 'No versions available.'}, status=status.HTTP_404_NOT_FOUND)
 
-@api_view(['DELETE'])
-@permission_classes([IsAuthenticated])
-def deleteUser(request, user_id):
-    try:
-        user = User.objects.get(id=user_id)
-        if request.user != user and not request.user.is_superuser:
-            return Response({'error': 'You do not have permission to delete this user.'}, status=status.HTTP_403_FORBIDDEN)
+class AppVersionPagination(PageNumberPagination):
+    page_size = 10  
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
-        user.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-    
-    except User.DoesNotExist:
-        return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def allVersionsView(request):
+    versions = AppVersion.objects.all()  
+    paginator = AppVersionPagination()   
+    paginated_versions = paginator.paginate_queryset(versions, request)  
+    serializer = AppVersionSerializer(paginated_versions, many=True)  
+    return paginator.get_paginated_response(serializer.data)        
+
+#Tickets Endpoints
 
 class TicketPagination(PageNumberPagination):
     page_size = 10
@@ -271,6 +322,19 @@ def allTicketsView(request):
     paginated_tickets = paginator.paginate_queryset(tickets, request)
     serializer = TicketSerializer(paginated_tickets, many=True)
     return paginator.get_paginated_response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTicketById(request, ticket_id):
+    try:
+        ticket = Ticket.objects.get(id=ticket_id) 
+        serializer = TicketSerializer(ticket)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Ticket.DoesNotExist:
+        return Response({'error': 'Ticket not found.'}, status=status.HTTP_404_NOT_FOUND)    
+
+#Examination Endpoints    
 
 class ExaminationPagination(PageNumberPagination):
     page_size = 10  
@@ -310,49 +374,6 @@ def listExaminations(request):
     serializer = ExaminationSerializer(paginated_examinations, many=True)
     return paginator.get_paginated_response(serializer.data)
 
-class AppVersionPagination(PageNumberPagination):
-    page_size = 10  
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def allVersionsView(request):
-    versions = AppVersion.objects.all()  
-    paginator = AppVersionPagination()   
-    paginated_versions = paginator.paginate_queryset(versions, request)  
-    serializer = AppVersionSerializer(paginated_versions, many=True)  
-    return paginator.get_paginated_response(serializer.data)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def getBugById(request, bug_id):
-    try:
-        bug = Bug.objects.get(id=bug_id)  
-        serializer = BugSerializer(bug)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Bug.DoesNotExist:
-        return Response({'error': 'Bug not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def getLogById(request, log_id):
-    try:
-        log = Log.objects.get(id=log_id) 
-        serializer = LogSerializer(log)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Log.DoesNotExist:
-        return Response({'error': 'Log not found.'}, status=status.HTTP_404_NOT_FOUND)
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def getTicketById(request, ticket_id):
-    try:
-        ticket = Ticket.objects.get(id=ticket_id) 
-        serializer = TicketSerializer(ticket)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    except Ticket.DoesNotExist:
-        return Response({'error': 'Ticket not found.'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -370,49 +391,39 @@ logger = logging.getLogger(__name__)
 @permission_classes([IsAuthenticated])
 def fetchExaminationAndSTL(request, examination_id):
     try:
-        # Get the Examination by ID
+
         examination = Examination.objects.get(id=examination_id)
 
-        # Get the download URL for the file and construct full URL
-        download_path = examination.download.url  # This is the relative URL
+        download_path = examination.download.url 
         full_download_url = f"{request.scheme}://{request.get_host()}{download_path}"
 
-        # Log the full download URL for debugging
         logger.info(f"Attempting to download file from: {full_download_url}")
 
-        # Fetch the ZIP file from the full URL
         response = requests.get(full_download_url)
-        
-        # Log the response status code for debugging
+
         logger.info(f"Response status code: {response.status_code}")
 
         if response.status_code != 200:
             return Response({"error": "Failed to download the file.", "status_code": response.status_code}, status=response.status_code)
 
-        # Extract the ZIP file in memory
         zip_content = response.content
         with zipfile.ZipFile(io.BytesIO(zip_content)) as z:
-            # Search for the specific STL file
+
             stl_filename = 'Left_InternalStructure_Hollow.STL'
             
             if stl_filename in z.namelist():
-                # Read the STL file content as binary
+
                 stl_content = z.read(stl_filename)
 
-                # Define the path where you want to save the STL file
                 saved_stl_path = os.path.join(settings.MEDIA_ROOT, 'stl_files', stl_filename)
 
-                # Ensure the directory exists
                 os.makedirs(os.path.dirname(saved_stl_path), exist_ok=True)
 
-                # Save the STL content to a file
                 with open(saved_stl_path, 'wb') as stl_file:
                     stl_file.write(stl_content)
 
-                # Create the download URL
                 download_url = f"{request.scheme}://{request.get_host()}/media/stl_files/{stl_filename}"
-                
-                # Return the download link to the client
+
                 return Response({"message": "STL file saved successfully.", "download_link": download_url}, status=status.HTTP_200_OK)
             else:
                 return Response({"error": "STL file not found in ZIP."}, status=status.HTTP_404_NOT_FOUND)

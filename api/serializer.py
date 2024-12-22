@@ -21,7 +21,16 @@ class LogSerializer(serializers.ModelSerializer):
         model = Log
         fields = ['id', 'hardwareCode', 'softwareCode', 'logTxt', 'created_at']
 
-class AppVersionSerializer(serializers.ModelSerializer):
+class AppVersionSerializer(serializers.Mod
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTicketById(request, ticket_id):
+    try:
+        ticket = Ticket.objects.get(id=ticket_id) 
+        serializer = TicketSerializer(ticket)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Ticket.DoesNotExist:
+        return Response({'error': 'Ticket not found.'}, status=status.HTTP_404_NOT_FOUND)elSerializer):
     class Meta:
         model = AppVersion
         fields = ['id', 'version_number', 'file', 'additional_file', 'created_at']
@@ -42,18 +51,15 @@ class TicketSerializer(serializers.ModelSerializer):
         model = Ticket
         fields = ['id', 'customer_username', 'title', 'body', 'created_at', 'active']  
         extra_kwargs = {
-            'customer': {'read_only': True}, 
-        }
-
-    def create(self, validated_data):
-        customer = validated_data.pop('customer', None)
-        ticket = Ticket.objects.create(customer=self.context['request'].user, **validated_data)
-        return ticket
-
-class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
-    @classmethod
-    def get_token(cls, user):
-        token = super().get_token(user)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTicketById(request, ticket_id):
+    try:
+        ticket = Ticket.objects.get(id=ticket_id) 
+        serializer = TicketSerializer(ticket)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Ticket.DoesNotExist:
+        return Response({'error': 'Ticket not found.'}, status=status.HTTP_404_NOT_FOUND)
         token['full_name'] = user.profile.full_name if user.profile else None
         token['username'] = user.username
         token['email'] = user.email
@@ -109,6 +115,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTicketById(request, ticket_id):
+    try:
+        ticket = Ticket.objects.get(id=ticket_id) 
+        serializer = TicketSerializer(ticket)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Ticket.DoesNotExist:
+        return Response({'error': 'Ticket not found.'}, status=status.HTTP_404_NOT_FOUND)
         validated_data.pop('password2', None)
         user = User(
             username=validated_data['username'],
@@ -122,25 +137,19 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 
-class ExaminationSerializer(serializers.ModelSerializer):
-    customer_username = serializers.CharField(source='customer.username', read_only=True)
-
-    class Meta:
-        model = Examination
-        fields = [
-            'id',
-            'customer_username',
-            'dataset',
-            'design_title',
-            'last_uid',
-            'high_heel',
-            'has_shoe',
-            'single_foot',
-            'download'
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def getTicketById(request, ticket_id):
+    try:
+        ticket = Ticket.objects.get(id=ticket_id) 
+        serializer = TicketSerializer(ticket)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Ticket.DoesNotExist:
+        return Response({'error': 'Ticket not found.'}, status=status.HTTP_404_NOT_FOUND)
         ]
 
     def validate_download(self, value):
-        # Check that the uploaded file is a ZIP file
+        
         if not value.name.endswith('.zip'):
             raise serializers.ValidationError("Only ZIP files are accepted for upload.")
         return value
