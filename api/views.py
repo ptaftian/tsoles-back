@@ -391,7 +391,6 @@ logger = logging.getLogger(__name__)
 @permission_classes([IsAuthenticated])
 def fetchExaminationAndSTL(request, examination_id):
     try:
-
         examination = Examination.objects.get(id=examination_id)
 
         download_path = examination.download.url 
@@ -407,26 +406,45 @@ def fetchExaminationAndSTL(request, examination_id):
             return Response({"error": "Failed to download the file.", "status_code": response.status_code}, status=response.status_code)
 
         zip_content = response.content
+        stl_filenames = [
+            'Left_InternalStructure_Hollow.STL',
+            'Left_FootShoe.STL',
+            'Left_Skeleton.STL',
+            'Left_Insole_Floor.STL',
+            'Left_Insole_Roof.STL',
+            'Right_FootShoe.STL',
+            'Right_Insole_Floor.STL',
+            'Right_Insole_Roof.STL',
+            'Right_InternalStructure_Hollow.STL',
+            'Right_Skeleton.STL'
+        ]
+
+        # Get the 'filenames' parameter from the query string
+        requested_files = request.GET.getlist('filenames')
+
+        saved_files = []
         with zipfile.ZipFile(io.BytesIO(zip_content)) as z:
+            # Filter filenames if 'filenames' parameter is provided
+            for stl_filename in stl_filenames:
+                if requested_files and stl_filename not in requested_files:
+                    continue  # Skip this file if it's not in the requested files
 
-            stl_filename = 'Left_InternalStructure_Hollow.STL'
-            
-            if stl_filename in z.namelist():
+                if stl_filename in z.namelist():
+                    stl_content = z.read(stl_filename)
+                    saved_stl_path = os.path.join(settings.MEDIA_ROOT, 'stl_files', stl_filename)
 
-                stl_content = z.read(stl_filename)
+                    os.makedirs(os.path.dirname(saved_stl_path), exist_ok=True)
 
-                saved_stl_path = os.path.join(settings.MEDIA_ROOT, 'stl_files', stl_filename)
+                    with open(saved_stl_path, 'wb') as stl_file:
+                        stl_file.write(stl_content)
 
-                os.makedirs(os.path.dirname(saved_stl_path), exist_ok=True)
+                    download_url = f"{request.scheme}://{request.get_host()}/media/stl_files/{stl_filename}"
+                    saved_files.append({"filename": stl_filename, "download_link": download_url})
 
-                with open(saved_stl_path, 'wb') as stl_file:
-                    stl_file.write(stl_content)
-
-                download_url = f"{request.scheme}://{request.get_host()}/media/stl_files/{stl_filename}"
-
-                return Response({"message": "STL file saved successfully.", "download_link": download_url}, status=status.HTTP_200_OK)
-            else:
-                return Response({"error": "STL file not found in ZIP."}, status=status.HTTP_404_NOT_FOUND)
+        if saved_files:
+            return Response({"message": "STL files saved successfully.", "files": saved_files}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "No STL files were found in ZIP."}, status=status.HTTP_404_NOT_FOUND)
 
     except Examination.DoesNotExist:
         return Response({"error": "Examination not found."}, status=status.HTTP_404_NOT_FOUND)
