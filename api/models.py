@@ -3,6 +3,13 @@ from django.db.models.signals import post_save
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 
+class MediaStorage(models.Model):
+    mp3_file = models.FileField(upload_to='media/mp3/')
+    gif_file = models.FileField(upload_to='media/gif/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Media {self.id} uploaded at {self.uploaded_at}"
 
 class Ticket(models.Model):
     customer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tickets')
@@ -13,6 +20,12 @@ class Ticket(models.Model):
     def __str__(self):
         return self.title
 
+
+class NameStorage(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
 
 class AppVersion(models.Model):
     version_number = models.CharField(max_length=50)
@@ -89,3 +102,8 @@ class Examination(models.Model):
 
     def __str__(self):
         return self.design_title
+
+class JobRec(models.Model):
+    status = models.CharField(max_length=120)
+    job_name = models.CharField(max_length=120)
+    date = models.DateTimeField()

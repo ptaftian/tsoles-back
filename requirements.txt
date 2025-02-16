@@ -1,0 +1,7 @@
+django
+rest-framework
+djangorestframework
+requests
+django-cors-headers
+jazzmin
+corsheaders

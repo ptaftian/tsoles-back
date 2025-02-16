@@ -48,4 +48,11 @@ urlpatterns = [
 
     # Versions and other utility endpoints
     path('versions/all/', views.allVersionsView, name='all_versions'), 
+    path('names/create/', views.createName, name='create_name'),
+    path('names/', views.listNames, name='list_names'), 
+    path('media/upload/', views.uploadMedia, name='upload_media'),
+    path('media/', views.listMedia, name='list_media'),
+
+    # Get job records
+    path('jobrec/', views.jobRec, name='job_records'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

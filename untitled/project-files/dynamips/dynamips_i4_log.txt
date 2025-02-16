@@ -1,0 +1,25 @@
+Jan 22 08:48:42.218 HYPERVISOR: Release 0.2.23-amd64/Linux (tag 2023010200)
+Jan 22 08:48:42.218 HYPERVISOR: Started on IP = 127.0.0.1, TCP port = 49243.
+Jan 22 08:48:42.226 HYPERVISOR: exec_cmd: hypervisor version 
+Jan 22 08:48:42.226 HYPERVISOR: exec_cmd: hypervisor working_dir /home/elaheh/backend/untitled/project-files/dynamips 
+Jan 22 08:48:42.226 GENERAL: working_dir=/home/elaheh/backend/untitled/project-files/dynamips
+Jan 22 08:48:42.226 HYPERVISOR: exec_cmd: hypervisor working_dir /home/elaheh/backend/untitled/project-files/dynamips/ca5038f2-0970-4312-a502-aaddee9be5b2 
+Jan 22 08:48:42.226 GENERAL: working_dir=/home/elaheh/backend/untitled/project-files/dynamips/ca5038f2-0970-4312-a502-aaddee9be5b2
+Jan 22 08:48:42.226 HYPERVISOR: exec_cmd: vm create R1 1 c3600 
+Jan 22 08:48:42.229 VM: VM R1 created.
+Jan 22 08:48:42.229 HYPERVISOR: exec_cmd: vm set_con_tcp_port R1 5000 
+Jan 22 08:48:42.229 HYPERVISOR: exec_cmd: c3600 get_mac_addr R1 
+Jan 22 08:48:42.229 HYPERVISOR: exec_cmd: c3600 set_chassis R1 3620 
+Jan 22 08:48:42.230 HYPERVISOR: exec_cmd: vm get_status R1 
+Jan 22 08:48:42.230 HYPERVISOR: exec_cmd: vm set_idle_pc R1 0x603a8bac 
+Jan 22 08:48:42.230 HYPERVISOR: exec_cmd: vm set_ios R1 /home/elaheh/GNS3/images/IOS/c3620-a3jk8s-mz.122-26c.image 
+Jan 22 08:48:42.230 HYPERVISOR: exec_cmd: c3600 set_mac_addr R1 cc01.6aef.0000 
+Jan 22 08:48:42.230 HYPERVISOR: exec_cmd: vm set_nvram R1 256 
+Jan 22 08:48:42.231 HYPERVISOR: exec_cmd: vm set_ram R1 192 
+Jan 22 08:48:48.149 HYPERVISOR: exec_cmd: vm get_status R1 
+Jan 22 08:48:48.149 HYPERVISOR: exec_cmd: vm extract_config R1 
+Jan 22 08:48:48.150 HYPERVISOR: exec_cmd: vm delete R1 
+Jan 22 08:48:48.150 VM: VM R1 destroyed.
+Jan 22 08:48:48.151 HYPERVISOR: exec_cmd: hypervisor stop 
+Jan 22 08:48:48.232 HYPERVISOR: Stopped.
+Jan 22 08:48:48.232 GENERAL: reset done.

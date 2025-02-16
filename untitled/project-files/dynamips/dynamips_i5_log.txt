@@ -1,0 +1,29 @@
+Jan 22 08:48:44.815 HYPERVISOR: Release 0.2.23-amd64/Linux (tag 2023010200)
+Jan 22 08:48:44.815 HYPERVISOR: Started on IP = 127.0.0.1, TCP port = 44165.
+Jan 22 08:48:44.824 HYPERVISOR: exec_cmd: hypervisor version 
+Jan 22 08:48:44.825 HYPERVISOR: exec_cmd: hypervisor working_dir /home/elaheh/backend/untitled/project-files/dynamips 
+Jan 22 08:48:44.825 GENERAL: working_dir=/home/elaheh/backend/untitled/project-files/dynamips
+Jan 22 08:48:44.825 HYPERVISOR: exec_cmd: hypervisor working_dir /home/elaheh/backend/untitled/project-files/dynamips/47bc3194-6b3e-44de-92d4-b85770dbbc9c 
+Jan 22 08:48:44.825 GENERAL: working_dir=/home/elaheh/backend/untitled/project-files/dynamips/47bc3194-6b3e-44de-92d4-b85770dbbc9c
+Jan 22 08:48:44.825 HYPERVISOR: exec_cmd: vm create R2 2 c3600 
+Jan 22 08:48:44.825 VM: VM R2 created.
+Jan 22 08:48:44.825 HYPERVISOR: exec_cmd: vm set_con_tcp_port R2 5001 
+Jan 22 08:48:44.825 HYPERVISOR: exec_cmd: c3600 get_mac_addr R2 
+Jan 22 08:48:44.825 HYPERVISOR: exec_cmd: c3600 set_chassis R2 3620 
+Jan 22 08:48:44.826 HYPERVISOR: exec_cmd: vm set_nvram R2 256 
+Jan 22 08:48:44.826 HYPERVISOR: exec_cmd: vm set_ram R2 192 
+Jan 22 08:48:44.826 HYPERVISOR: exec_cmd: vm set_ios R2 /home/elaheh/GNS3/images/IOS/c3620-a3jk8s-mz.122-26c.image 
+Jan 22 08:48:44.826 HYPERVISOR: exec_cmd: vm get_status R2 
+Jan 22 08:48:44.827 HYPERVISOR: exec_cmd: vm set_idle_pc R2 0x603a8bac 
+Jan 22 08:48:44.827 HYPERVISOR: exec_cmd: vm get_status R2 
+Jan 22 08:48:44.827 HYPERVISOR: exec_cmd: vm slot_add_binding R2 0 0 NM-1FE-TX 
+Jan 22 08:48:44.827 HYPERVISOR: exec_cmd: vm get_status R2 
+Jan 22 08:48:44.827 HYPERVISOR: exec_cmd: vm slot_add_binding R2 1 0 NM-1E 
+Jan 22 08:48:44.863 HYPERVISOR: exec_cmd: vm set_ios R2 /home/elaheh/GNS3/images/IOS/c3620-a3jk8s-mz.122-26c.image 
+Jan 22 13:52:30.344 HYPERVISOR: exec_cmd: vm get_status R2 
+Jan 22 13:52:30.345 HYPERVISOR: exec_cmd: vm extract_config R2 
+Jan 22 13:52:30.346 HYPERVISOR: exec_cmd: vm delete R2 
+Jan 22 13:52:30.346 VM: VM R2 destroyed.
+Jan 22 13:52:30.347 HYPERVISOR: exec_cmd: hypervisor stop 
+Jan 22 13:52:30.480 HYPERVISOR: Stopped.
+Jan 22 13:52:30.480 GENERAL: reset done.

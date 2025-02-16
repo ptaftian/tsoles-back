@@ -1,10 +1,15 @@
 
 
-from api.models import User, Bug, Log, AppVersion, Ticket , Examination
+from api.models import User, Bug, Log, AppVersion, Ticket , Examination , NameStorage , MediaStorage , JobRec
 from django.contrib.auth.password_validation import validate_password
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework import serializers
 from rest_framework.validators import UniqueValidator
+
+class MediaStorageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MediaStorage
+        fields = ['id', 'mp3_file', 'gif_file', 'uploaded_at']
 
 class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
@@ -34,6 +39,13 @@ class UserSerializer(serializers.ModelSerializer):
             'phone_number': {'required': False},
             'serial_number': {'required': False},
         }
+
+
+
+class NameStorageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NameStorage
+        fields = ['id', 'name']
 
 class TicketSerializer(serializers.ModelSerializer):
     customer_username = serializers.CharField(source='customer.username', read_only=True) 
@@ -144,3 +156,10 @@ class ExaminationSerializer(serializers.ModelSerializer):
         if not value.name.endswith('.zip'):
             raise serializers.ValidationError("Only ZIP files are accepted for upload.")
         return value
+    
+class JobRecSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JobRec
+        fields = ['status', 'job_name', 'date']
+
+

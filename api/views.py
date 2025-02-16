@@ -4,11 +4,18 @@
 import os
 import io
 import zipfile
+
+from PIL import Image
+from io import BytesIO
+from django.core.files.base import ContentFile
+
+
+
 import requests
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.conf import settings  # Add this to manage file paths
-from api.models import User, Bug, Log, AppVersion, Ticket, Examination
+from api.models import User, Bug, Log, AppVersion, Ticket, Examination, NameStorage , MediaStorage , JobRec
 import logging
 from api.serializer import (
     MyTokenObtainPairSerializer,
@@ -18,8 +25,12 @@ from api.serializer import (
     LogSerializer,
     AppVersionSerializer,
     TicketSerializer,
-    ExaminationSerializer
+    ExaminationSerializer,
+    NameStorageSerializer,
+    MediaStorageSerializer,
+    JobRecSerializer
 )
+
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -392,11 +403,12 @@ logger = logging.getLogger(__name__)
 def fetchExaminationAndSTL(request, examination_id):
     try:
         examination = Examination.objects.get(id=examination_id)
+        
 
         download_path = examination.download.url 
         full_download_url = f"{request.scheme}://{request.get_host()}{download_path}"
 
-        logger.info(f"Attempting to download file from: {full_download_url}")
+        logger.info(f"Attempting to download file from:{full_download_url}")
 
         response = requests.get(full_download_url)
 
@@ -407,16 +419,18 @@ def fetchExaminationAndSTL(request, examination_id):
 
         zip_content = response.content
         stl_filenames = [
+            
             'Left_InternalStructure_Hollow.STL',
             'Left_FootShoe.STL',
             'Left_Skeleton.STL',
             'Left_Insole_Floor.STL',
             'Left_Insole_Roof.STL',
+            'Right_InternalStructure_Hollow.STL',
             'Right_FootShoe.STL',
+            'Right_Skeleton.STL',
             'Right_Insole_Floor.STL',
             'Right_Insole_Roof.STL',
-            'Right_InternalStructure_Hollow.STL',
-            'Right_Skeleton.STL'
+        
         ]
 
         # Get the 'filenames' parameter from the query string
@@ -451,3 +465,77 @@ def fetchExaminationAndSTL(request, examination_id):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+@api_view(['POST'])
+
+def createName(request):
+    serializer = NameStorageSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+
+def listNames(request):
+    names = NameStorage.objects.all()
+    serializer = NameStorageSerializer(names, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+@api_view(['POST'])
+def uploadMedia(request):
+    serializer = MediaStorageSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        # Handle GIF conversion
+        image_file = request.FILES.get('gif_file')
+
+        # Only convert if the uploaded file is an image
+        if image_file:
+            # Open image using PIL
+            try:
+                image = Image.open(image_file)
+                gif_io = BytesIO()
+                image.save(gif_io, format='GIF')  # Convert to GIF format
+                gif_file = ContentFile(gif_io.getvalue(), name=image_file.name.split('.')[0] + '.gif')  # Create ContentFile
+
+                # Now update the serializer instance and save
+                serializer.validated_data['gif_file'] = gif_file
+
+            except Exception as e:
+                return Response({"error": "Failed to convert the image to GIF."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Save the media storage instance
+        serializer.save()  
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+
+def listMedia(request):
+    media_files = MediaStorage.objects.all()
+    serializer = MediaStorageSerializer(media_files, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+def jobRec(request):
+    if request.method == 'GET':
+        job_data = JobRec.objects.all()
+        serializer = JobRecSerializer(job_data, many=True)  # Add many=True
+        return Response(serializer.data)  # Return Response
+    elif request.method == 'POST':
+        # Handle POST request here
+        serializer = JobRecSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
