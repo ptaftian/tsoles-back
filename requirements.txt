@@ -1,7 +1,9 @@
 django
-rest-framework
 djangorestframework
 requests
 django-cors-headers
-jazzmin
-corsheaders
+api
+rest_framework_simplejwt
+django-jazzmin
+djangorestframework-simplejwt
+pillow
